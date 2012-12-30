@@ -17,7 +17,7 @@ All it needs to work is a annotation on the class, as the following example:
 case class Server(id: Long, load: Double, name: String, ip: String, enviroment: String, group: String, roles: List[String])
 ```
 
-All indexed are automatically updated.
+All indexes are automatically handled at save/update/delete.
 
 Serialization is done by default using Kryo, but can be changed easily, look at `src/example` folder.
 
@@ -26,7 +26,7 @@ Usage
 
 #### Save
 ```scala
-val model = Server(100l, "server1", "127.0.0.1", "dev", List("redis-srv", "hbase")
+val model = Server(100l, 1.2d, "server1", "127.0.0.1", "dev", "hbase_slave", List("redis-srv", "hbase"))
 context.save(model)
 ```
 
