@@ -2,14 +2,19 @@ package com.github.rodrigopr.scared.db
 
 import org.scalatest.{BeforeAndAfterEach, FeatureSpec}
 import com.redis.RedisClient
-import com.github.rodrigopr.scared.testmodel.{NoIdModel, InvalidModel, Simple, Server}
-import sjson.json.Serializer.{ SJSON => jsonSerializer }
+import com.github.rodrigopr.scared.testmodel._
 import org.scalatest.matchers.ShouldMatchers
-import com.github.rodrigopr.scared.serializer.SJsonSerDe
+import com.github.rodrigopr.scared.serializer.SerDe.defaultSerializer
+import java.util
+import com.github.rodrigopr.scared.testmodel.Simple
+import com.github.rodrigopr.scared.testmodel.Server
+import com.github.rodrigopr.scared.testmodel.InvalidModel
+import scala.Some
+import com.github.rodrigopr.scared.testmodel.NoIdModel
 
 class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMatchers {
   val redis = new RedisClient
-  val context = new RedisContext(new SJsonSerDe)
+  val context = new RedisContext
 
   // Helpers
   val firstServerOnly = Some(List("100"))
@@ -28,7 +33,9 @@ class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMa
 
       context.save(model)
 
-      redis.get("simple:1000") should be( Some(new String(jsonSerializer.out(model))) )
+      implicit val parser = com.redis.serialization.Parse.Implicits.parseByteArray
+
+      assert(util.Arrays.equals(redis.get[Array[Byte]]("simple:1000").get, defaultSerializer.serialize(model)))
     }
 
     scenario("Updating Object using save") {
@@ -40,7 +47,9 @@ class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMa
 
       context.save(modelUpdate)
 
-      redis.get("simple:1000") should be( Some(new String(jsonSerializer.out(modelUpdate))) )
+      implicit val parser = com.redis.serialization.Parse.Implicits.parseByteArray
+
+      assert(util.Arrays.equals(redis.get[Array[Byte]]("simple:1000").get, defaultSerializer.serialize(modelUpdate)))
     }
 
     scenario("Updating Object") {
@@ -52,7 +61,9 @@ class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMa
 
       modelUpdate should be(Simple(1000l, "MySimpleModel-Update"))
 
-      redis.get("simple:1000") should be( Some(new String(jsonSerializer.out(modelUpdate))) )
+      implicit val parser = com.redis.serialization.Parse.Implicits.parseByteArray
+
+      assert(util.Arrays.equals(redis.get[Array[Byte]]("simple:1000").get, defaultSerializer.serialize(modelUpdate)))
     }
 
     scenario("Updating non existing Object") {
@@ -152,7 +163,30 @@ class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMa
       redis.zrange("@server[enviroment:group]=>env-updated:$:grp-updated", 0, -1) should be (firstServerOnly)
     }
 
-    scenario("Using autoincrement for id")(pending)
+    scenario("Saving model wihouth id should generate-it"){
+      val model = ModelNullableId(null, "name")
+
+      val id = context.save(model)
+
+      id should be (1)
+
+      context.load[ModelNullableId](1) should be (Some(model.copy(id = 1l)))
+    }
+
+    scenario("Saving model should update auto increment ref"){
+      context.nextIdFor[Server] should be (1)
+      context.nextIdFor[Server] should be (2)
+
+      val model = Server(10, "name", "i", "f", "grp", "env", List("r1", "r2"))
+      context.save(model)
+
+      context.nextIdFor[Server] should be (11)
+    }
+
+    scenario("Using autoincrement for id"){
+      context.nextIdFor[Server] should be (1)
+      context.nextIdFor[Server] should be (2)
+    }
 
     scenario("Using incorrect model") {
       val model = InvalidModel(100l, "invalid")

@@ -45,6 +45,6 @@ object Index {
     case n: Number => n.doubleValue
     case b: Boolean => if (b) 1.0 else 0.0
     case _ => sys.error("Wrong type for score: " + value)
-  }.getOrElse(0.0) //TODO: make it possible to compute outsite framework
+  }.getOrElse(0.0) //TODO: make it possible to compute outside framework
 
 }

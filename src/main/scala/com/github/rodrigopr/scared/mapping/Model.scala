@@ -4,7 +4,6 @@ import collection.Set
 import com.github.rodrigopr.scared.annotations.Persist
 
 class Model(clazz: Class[_]) {
-
   private val persistAnnotation = clazz.getAnnotation(classOf[Persist])
 
   if(persistAnnotation == null) {

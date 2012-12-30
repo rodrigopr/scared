@@ -1,9 +1,8 @@
 package com.github.rodrigopr.scared.testmodel
 
-import com.github.rodrigopr.scared.annotations.{Id, Index, Persist}
+import com.github.rodrigopr.scared.annotations.{Index, Persist}
 import scala.Array
 import reflect.BeanInfo
-import annotation.target.field
 
 @BeanInfo
 @Persist(
@@ -15,6 +14,4 @@ import annotation.target.field
 case class NoIdModel(
   field1: Long,
   name: String
-) {
-  def this() = this(0, null)
-}
+)

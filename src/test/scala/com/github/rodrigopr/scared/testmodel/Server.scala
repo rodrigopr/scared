@@ -2,9 +2,7 @@ package com.github.rodrigopr.scared.testmodel
 
 import com.github.rodrigopr.scared.annotations.{ Index, Persist}
 import scala.Array
-import reflect.BeanInfo
 
-@BeanInfo
 @Persist(
   name = "server",
   customIndexes = Array(
@@ -25,6 +23,4 @@ case class Server(
   group: String,
   enviroment: String,
   roles: List[String]
-) {
-  def this() = this(0, null, null, null, null, null, null)
-}
+)

@@ -3,10 +3,8 @@ package com.github.rodrigopr.scared.testmodel
 import com.github.rodrigopr.scared.annotations._
 import scala.Array
 import java.util.Date
-import reflect.BeanInfo
 import annotation.target.field
 
-@BeanInfo
 @Persist(
   name = "occurrence",
   customIndexes = Array(
@@ -25,6 +23,4 @@ case class Occurrence(
   services: List[Long],
   servers: List[Long],
   related: List[Long]
-){
-  def this() = this(0, null, null, null, null, null, null)
-}
+)

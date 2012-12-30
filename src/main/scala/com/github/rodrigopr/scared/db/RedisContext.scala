@@ -1,6 +1,6 @@
 package com.github.rodrigopr.scared.db
 
-import com.github.rodrigopr.scared.mapping.Model
+import com.github.rodrigopr.scared.mapping.{Field, Model}
 import collection.mutable
 import collection.mutable.ArrayBuffer
 import com.redis.RedisClient
@@ -13,15 +13,37 @@ class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
   // TODO: use a pool and load host:port from configuration
   private[db] val redis = new RedisClient()
 
+  def nextIdFor[T](implicit m: Manifest[T]): Long = {
+    val modelInfo = extractModelInfo(m.erasure)
+
+    redis.incr("#" + modelInfo.name).get
+  }
+
   /**
+   * Returns the saved id, in case it was auto-generated.
+   *
    * Save `model` and update his corresponding indexes. <br>
    * The model need be annotated with [[com.github.rodrigopr.scared.annotations.Persist]]
    */
-  def save[T <: AnyRef](model: T)(implicit m: Manifest[T]) {
+  def save[T <: AnyRef](model: T)(implicit m: Manifest[T]): Any = {
     val modelInfo = extractModelInfo(model.getClass)
 
     val data = toMap(model)
-    val id = data(modelInfo.idField.name)
+
+    val idField: Field = modelInfo.idField
+
+    val id = Option(data(idField.name)).getOrElse {
+      if(modelInfo.idField.canAutoGenerate) {
+        val newId = nextIdFor[T]
+
+        // update the attribute in the main object
+        idField.field.set(model, newId)
+
+        newId
+      } else {
+        sys.error("Id attribute must not be null")
+      }
+    }
 
     val oldData = load[T](id).map(toMap)
 
@@ -48,6 +70,18 @@ class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
         p.zadd(entry.key, entry.score, id.toString)
       }
     }
+
+    if(idField.canAutoGenerate) {
+      redis.get("#" + modelInfo.name).map(_.toLong).map{ oldValue =>
+        val idAsLong = id.asInstanceOf[Long]
+
+        if(idAsLong > oldValue) {
+          redis.set("#" + modelInfo.name, idAsLong)
+        }
+      }
+    }
+
+    id
   }
 
   /**

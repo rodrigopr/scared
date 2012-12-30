@@ -17,7 +17,7 @@ protected class Queryable[T](context: RedisContext, where: Where, modelInfo: Mod
   and(where)
 
   /**
-   * Used for join index results, take in mind that all joins are computated in execution time,
+   * Used for join index results, take in mind that all joins are copulated in execution time,
    * and can hurt the overall performance, as redis will only answer one request at time. <br>
    *
    * Also all whereClauses need to be complete, ie, need to map to a index,
@@ -151,8 +151,8 @@ object Queryable {
    *
    * Both `fromScore` and `toScore` need to be Double, Number or Boolean. <br>
    *
-   * @param skip optional num itens to skip
-   * @param take optional num itens to take, need to be setted if skip was also used
+   * @param skip optional num items to skip
+   * @param take optional num items to take, need to be specified if skip was also used
    */
   case class ScorePagination(
     fromScore: Any,

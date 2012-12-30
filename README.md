@@ -49,6 +49,17 @@ context.delete[Server](100l)
 val server: Option[Server] = context.load[Server](100l)
 ```
 
+#### Auto generate Id
+```scala
+val generatedId = context.nextIdFor[Server]
+val model = Server(generatedId, 1.2d, "server1", "127.0.0.1", "dev", "hbase_slave", List("redis-srv", "hbase"))
+context.save(model)
+                                                          ;
+// Or if the attribute id is nullable long(java.lang.Long)
+val model = Server(null, 1.2d, "server1", "127.0.0.1", "dev", "hbase_slave", List("redis-srv", "hbase"))
+val generatedId = context.save(model)
+```
+
 #### Querying(Simple)
 ```scala
 val servers: Iterator[Server] = context.query[Server](new Where{ 'enviroment === "dev" }).execute()
@@ -76,7 +87,6 @@ For more examples look at `src/example/` and `src/test/scala` folders.
 
 TODO
 -----------
-  - Auto-Increment support
   - Support auto Reference/Relationship
   - Support inherited fields
   - Better configuration (only localhost:6379 right now)
