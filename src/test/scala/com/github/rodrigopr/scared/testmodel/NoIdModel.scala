@@ -13,7 +13,7 @@ import annotation.target.field
   )
 )
 case class NoIdModel(
-  id: Long,
+  field1: Long,
   name: String
 ) {
   def this() = this(0, null)
