@@ -1,5 +1,6 @@
 ScaRed
 =========
+[![Build Status](https://travis-ci.org/rodrigopr/scared.png?branch=master)](https://travis-ci.org/rodrigopr/scared)
 
 ScaRed is a minimal Object-KeyValue Mapping library for Redis.
 
