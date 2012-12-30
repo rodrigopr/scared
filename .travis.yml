@@ -3,4 +3,3 @@ scala:
   - 2.9.2
 services:
   - redis-server
-script: "mvn clean test"
