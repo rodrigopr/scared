@@ -33,7 +33,7 @@
     <pluginRepository>
       <id>sonatype</id>
       <name>sonatype</name>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
+      <url>https://oss.sonatype.org/content/groups/public</url>
     </pluginRepository>
   </pluginRepositories>
 
