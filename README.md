@@ -7,20 +7,19 @@ ScaRed is a minimal Object-KeyValue Mapping library for Redis.
 All it needs to work is a annotation on the class, as the following example:
 
 ```scala
-@BeanInfo
 @Persist(name = "server",
   customIndexes = Array(
     new Index(fields = Array("enviroment")),
+    new Index(fields = Array("enviroment", "group"), orderField = "load"),
     new Index(fields = Array("roles"))
   )
 )
-case class Server(id: Long, name: String, ip: String, enviroment: String, roles: List[String]) {
-  def this() = this(0, null, null, null, null, null, null)
-}
+case class Server(id: Long, load: Double, name: String, ip: String, enviroment: String, group: String, roles: List[String])
 ```
 
-Note the empty-param constructor and the @BeanInfo, those are required by the serialization([sjson](https://github.com/debasishg/sjson/wiki/Reflection-based-JSON-Serialization)), it will changed as soon as possible.
-Also, is really easy to change the SerDe, look at `src/example/custom_serializer.scala`.
+All indexed are automatically updated.
+
+Serialization is done by default using Kryo, but can be changed easily, look at `src/example` folder.
 
 Usage
 ----------
@@ -58,7 +57,7 @@ val servers: Iterator[Server] = context
     .paginate(FixedInterval(0, 10))
     .execute()
 ```
-* Can also paginate through score(look at ScorePagination)
+Can also paginate through score(look at ScorePagination)
 
 #### Querying(Join)
 ```scala
@@ -73,8 +72,6 @@ For more examples look at `src/example/` and `src/test/scala` folders.
 
 TODO
 -----------
-  - Reduce boilerplate required(maybe use with classes without annotation?)
-  - Better default serialization
   - Auto-Increment support
   - Support auto Reference/Relationship
   - Support inherited fields

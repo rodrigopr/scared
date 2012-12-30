@@ -6,7 +6,6 @@ import com.github.rodrigopr.scared.db.Queryable.{Pagination, ScorePagination, Fi
 import com.github.rodrigopr.scared.mapping.{Index, Model}
 import java.util.UUID
 import com.redis.RedisClient
-import com.redis.RedisClient.DESC
 
 protected class Queryable[T](context: RedisContext, where: Where, modelInfo: Model)(implicit m: Manifest[T]) {
   private val indexKeys = mutable.ArrayBuffer[String]()

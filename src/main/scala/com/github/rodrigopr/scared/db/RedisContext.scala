@@ -4,9 +4,10 @@ import com.github.rodrigopr.scared.mapping.Model
 import collection.mutable
 import collection.mutable.ArrayBuffer
 import com.redis.RedisClient
-import sjson.json.Serializer.{SJSON => serializer}
+import com.redis.serialization.{Format, Parse}
+import com.github.rodrigopr.scared.serializer.SerDe
 
-class RedisContext {
+class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
   private[db] val modelsInfo = new mutable.HashMap[Class[_], Model]()
 
   // TODO: use a pool and load host:port from configuration
@@ -39,7 +40,7 @@ class RedisContext {
     }
 
     redis.pipeline {p =>
-      p.set(modelInfo.getObjectKey(id), serialize[T](model))
+      p.set(modelInfo.getObjectKey(id), serde.serialize[T](model))
 
       toRemove.foreach(p.zrem(_, id))
 
@@ -99,8 +100,8 @@ class RedisContext {
   def load[T](id: Any)(implicit m: Manifest[T]): Option[T] = {
     val modelInfo = extractModelInfo(m.erasure)
 
-    redis.get(modelInfo.getObjectKey(id)).map(d =>
-      deserialize[T](d.getBytes("utf-8"))
+    redis.get(modelInfo.getObjectKey(id))(format = Format.default, parse = Parse.Implicits.parseByteArray).map(d =>
+      serde.deserialize[T](d)
     )
   }
 
@@ -119,7 +120,4 @@ class RedisContext {
       f.setAccessible(true)
       a + (f.getName -> f.get(model))
     }
-
-  protected def serialize[T <: AnyRef](obj: T)(implicit m: Manifest[T]): Array[Byte] = serializer.out(obj)
-  protected def deserialize[T](data: Array[Byte])(implicit m: Manifest[T]): T = serializer.in[T](data)
 }

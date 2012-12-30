@@ -58,6 +58,11 @@
       <artifactId>scalatest_2.9.2</artifactId>
       <version>1.8</version>
     </dependency>
+    <dependency>
+      <groupId>com.twitter</groupId>
+      <artifactId>chill_2.9.2</artifactId>
+      <version>0.0.4</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -122,7 +127,6 @@
       <plugin>
         <groupId>org.scalatest</groupId>
         <artifactId>scalatest-maven-plugin</artifactId>
-        <version>1.0-M2</version>
         <configuration>
           <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
           <junitxml>.</junitxml>

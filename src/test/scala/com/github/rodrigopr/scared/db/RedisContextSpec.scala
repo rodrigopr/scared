@@ -5,10 +5,11 @@ import com.redis.RedisClient
 import com.github.rodrigopr.scared.testmodel.{NoIdModel, InvalidModel, Simple, Server}
 import sjson.json.Serializer.{ SJSON => jsonSerializer }
 import org.scalatest.matchers.ShouldMatchers
+import com.github.rodrigopr.scared.serializer.SJsonSerDe
 
 class RedisContextSpec extends FeatureSpec with BeforeAndAfterEach with ShouldMatchers {
   val redis = new RedisClient
-  val context = new RedisContext
+  val context = new RedisContext(new SJsonSerDe)
 
   // Helpers
   val firstServerOnly = Some(List("100"))
