@@ -17,7 +17,11 @@ All it needs to work is a annotation on the class, as the following example:
 case class Server(id: Long, load: Double, name: String, ip: String, enviroment: String, group: String, roles: List[String])
 ```
 
-All indexes are automatically handled at save/update/delete.
+All entities must have a id attribute,
+the library will look first for one with the annotation @Id,
+if not fould will use the one with name `id`.
+
+Indexes are automatically handled at save/update/delete.
 
 Serialization is done by default using Kryo, but can be changed easily, look at `src/example` folder.
 
