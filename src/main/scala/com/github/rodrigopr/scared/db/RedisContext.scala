@@ -4,7 +4,7 @@ import com.github.rodrigopr.scared.mapping.{Field, Model}
 import collection.mutable
 import collection.mutable.ArrayBuffer
 import com.redis.RedisClient
-import com.redis.serialization.{Format, Parse}
+import com.redis.serialization.Parse.Implicits._
 import com.github.rodrigopr.scared.serializer.SerDe
 
 class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
@@ -72,7 +72,7 @@ class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
     }
 
     if(idField.canAutoGenerate) {
-      redis.get("#" + modelInfo.name).map(_.toLong).map{ oldValue =>
+      redis.get[Long]("#" + modelInfo.name).map{ oldValue =>
         val idAsLong = id.asInstanceOf[Long]
 
         if(idAsLong > oldValue) {
@@ -134,7 +134,7 @@ class RedisContext(serde: SerDe = SerDe.defaultSerializer) {
   def load[T](id: Any)(implicit m: Manifest[T]): Option[T] = {
     val modelInfo = extractModelInfo(m.erasure)
 
-    redis.get(modelInfo.getObjectKey(id))(format = Format.default, parse = Parse.Implicits.parseByteArray).map(d =>
+    redis.get[Array[Byte]](modelInfo.getObjectKey(id)).map(d =>
       serde.deserialize[T](d)
     )
   }
